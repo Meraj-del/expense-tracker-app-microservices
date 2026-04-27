@@ -8,3 +8,7 @@ target/
 .env
 *.env
 node_modules/
+# Sensitive config files
+**/application.properties
+**/application.yml
+**/.env
