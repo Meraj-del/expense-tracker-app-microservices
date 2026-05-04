@@ -3,6 +3,7 @@ package com.expense.service.controller;
 import com.expense.service.dto.ExpenseDto;
 import com.expense.service.service.ExpenseService;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,14 +13,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/expense/v1")
+@RequiredArgsConstructor
 public class ExpenseController {
 
-    private final ExpenseService expenseService;
 
-    @Autowired
-    public ExpenseController(ExpenseService expenseService) {
-        this.expenseService = expenseService;
-    }
+    private final ExpenseService expenseService;
 
     @GetMapping("/get")
     public ResponseEntity<?> getExpenses(
