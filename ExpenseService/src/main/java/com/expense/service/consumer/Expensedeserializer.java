@@ -1,11 +1,13 @@
 package com.expense.service.consumer;
 
 import com.expense.service.dto.ExpenseDto;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Deserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 
+@Slf4j
 public class Expensedeserializer implements Deserializer<ExpenseDto> {
 
     @Override
@@ -24,7 +26,7 @@ public class Expensedeserializer implements Deserializer<ExpenseDto> {
             expenseDto = mapper.readValue(arg1, ExpenseDto.class);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to deserialize expense event"+e.getMessage());
         }
         return expenseDto;
     }

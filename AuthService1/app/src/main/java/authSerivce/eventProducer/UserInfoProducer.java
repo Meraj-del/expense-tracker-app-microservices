@@ -1,7 +1,9 @@
 package authSerivce.eventProducer;
 
 import authSerivce.model.UserInfoDto;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -10,7 +12,9 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserInfoProducer {
 
     private final KafkaTemplate<String, UserInfoDto> kafkaTemplate;
@@ -18,9 +22,9 @@ public class UserInfoProducer {
     @Value("${spring.kafka.topic.name}")
     private String TOPIC_NAME;
 
-    @Autowired
-    UserInfoProducer(KafkaTemplate<String, UserInfoDto> kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
+    @PostConstruct
+    public void init() {
+        log.info("UserInfoProducer initialized. Publishing to topic: {}", TOPIC_NAME);
     }
 
     public void sendEventToKafka(UserInfoDto userInfoDto) {

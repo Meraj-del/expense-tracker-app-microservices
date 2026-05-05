@@ -5,22 +5,36 @@ import com.dev.entities.UserInfoDto;
 import com.dev.redisIdempotency.RedisLockService;
 import com.dev.repository.UserRepository;
 import com.dev.service.UserService;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class AuthServiceConsumer {
 
-    private UserService userService;
+    private final UserService userService;
 
-    private RedisLockService redisLockService;
+    private final RedisLockService redisLockService;
 
     @Autowired
     AuthServiceConsumer(UserService userService, RedisLockService redisLockService) {
         this.userService = userService;
         this.redisLockService = redisLockService;
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("AuthServiceConsumer initialized. Listening to Kafka topic for user events.");
+    }
+
+    @PreDestroy
+    public void cleanup() {
+        log.info("AuthServiceConsumer shutting down. Stopping Kafka listener cleanly.");
     }
 
     @KafkaListener(topics = "${spring.kafka.topic.name}",
@@ -34,12 +48,12 @@ public class AuthServiceConsumer {
         boolean locked = redisLockService.acquireLock(lockKey, 5000);
 
         if (!locked) {
-            System.out.println("Duplicate processing detected for: " + eventData.getUserId());
+            log.warn("Duplicate processing detected for userId: {}", eventData.getUserId());
             return;
         }
         try {
             userService.createOrUpdateUser(eventData);
-            System.out.println("Saved to DB: " + eventData);
+            log.info("User saved to DB: {}", eventData);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
