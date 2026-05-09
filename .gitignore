@@ -1,15 +1,25 @@
-target/
-*.class
-*.jar
-*.war
-.idea/
-*.iml
-.vscode/
-.env
-*.env
-node_modules/
-# Sensitive config files
-**/application.properties
-**/application.yml
-**/.env
-docker-compose.yml
+# Application properties with secrets
+**/src/main/resources/application.properties
+**/src/main/resources/application.yml
+
+# Keep example files
+!**/src/main/resources/application.properties.example
+!**/src/main/resources/application.yml.example
+
+# Build outputs
+**/build/
+**/target/
+**/.gradle/
+**/.idea/
+**/*.class
+
+# DS Service secrets
+dsService/src/.env
+**/dist/
+**/__pycache__/
+**/*.pyc
+**/.venv/
+**/dsenv/
+
+# Logs
+*.log

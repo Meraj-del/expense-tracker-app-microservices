@@ -1,0 +1,83 @@
+_format_version: "2.1"
+_transform: true
+
+services:
+  - name: auth-service
+    url: http://auth-service:9898
+    routes:
+      - name: auth-signup
+        paths:
+          - /auth/v1/signup
+        strip_path: false
+      - name: auth-login
+        paths:
+          - /auth/v1/login
+        strip_path: false
+      - name: auth-refresh
+        paths:
+          - /auth/v1/refreshToken
+        strip_path: false
+      - name: auth-ping
+        paths:
+          - /auth/v1/ping
+        strip_path: false
+
+  - name: user-service
+    url: http://user-service:9810
+    routes:
+      - name: user-create-update
+        paths:
+          - /user/v1/createUpdate
+        strip_path: false
+      - name: user-get
+        paths:
+          - /user/v1/getUser
+        strip_path: false
+    plugins:
+      - name: custom-auth
+        config:
+          auth_service_url: "http://auth-service:9898/auth/v1/ping"
+
+  - name: expense-service
+    url: http://expense-service:9820
+    routes:
+      - name: expense-get
+        paths:
+          - /expense/v1/get
+        strip_path: false
+      - name: expense-get-range
+        paths:
+          - /expense/v1/get/range
+        strip_path: false
+      - name: expense-create
+        paths:
+          - /expense/v1/create
+        strip_path: false
+      - name: expense-update
+        paths:
+          - /expense/v1/update
+        strip_path: false
+      - name: expense-delete
+        paths:
+          - /expense/v1/delete
+        strip_path: false
+      - name: expense-add
+        paths:
+          - /expense/v1/addExpense
+        strip_path: false
+    plugins:
+      - name: custom-auth
+        config:
+          auth_service_url: "http://auth-service:9898/auth/v1/ping"
+
+  - name: ds-service
+    url: http://ds-service:8000
+    routes:
+      - name: ds-message
+        paths:
+          - /v1/ds/message
+        strip_path: false
+    plugins:
+      - name: custom-auth
+        config:
+          auth_service_url: "http://auth-service:9898/auth/v1/ping"
