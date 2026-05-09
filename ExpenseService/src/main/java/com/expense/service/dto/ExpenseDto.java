@@ -16,6 +16,8 @@ import java.sql.Timestamp;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExpenseDto {
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     private String externalId;
 
     @JsonProperty(value = "amount")
@@ -35,14 +37,13 @@ public class ExpenseDto {
 
     public ExpenseDto(String json) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            ExpenseDto expenseDto = mapper.readValue(json, ExpenseDto.class);
-            this.externalId = expenseDto.getExternalId();
-            this.amount = expenseDto.getAmount();
-            this.userId = expenseDto.getUserId();
-            this.merchant = expenseDto.getMerchant();
-            this.currency = expenseDto.getCurrency();
-            this.createdAt = expenseDto.getCreatedAt();
+            ExpenseDto dto = MAPPER.readValue(json, ExpenseDto.class);
+            this.externalId = dto.getExternalId();
+            this.amount = dto.getAmount();
+            this.userId = dto.getUserId();
+            this.merchant = dto.getMerchant();
+            this.currency = dto.getCurrency();
+            this.createdAt = dto.getCreatedAt();
         } catch (Exception e) {
             throw new RuntimeException("Failed to deserialize ExpenseDto from json", e);
         }

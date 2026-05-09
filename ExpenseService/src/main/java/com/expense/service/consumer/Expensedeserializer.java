@@ -10,6 +10,8 @@ import java.util.Map;
 @Slf4j
 public class Expensedeserializer implements Deserializer<ExpenseDto> {
 
+    private final ObjectMapper mapper = new ObjectMapper();
+
     @Override
     public void close() {
     }
@@ -20,15 +22,12 @@ public class Expensedeserializer implements Deserializer<ExpenseDto> {
 
     @Override
     public ExpenseDto deserialize(String arg0, byte[] arg1) {
-        ObjectMapper mapper = new ObjectMapper();
-        ExpenseDto expenseDto = null;
         try {
-            expenseDto = mapper.readValue(arg1, ExpenseDto.class);
+            return mapper.readValue(arg1, ExpenseDto.class);
+        } catch (Exception e) {
+            log.error("Failed to deserialize expense event: {}", e.getMessage());
+            return null;
         }
-        catch (Exception e) {
-            log.error("Failed to deserialize expense event"+e.getMessage());
-        }
-        return expenseDto;
     }
 
 }

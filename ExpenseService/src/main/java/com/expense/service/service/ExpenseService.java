@@ -4,6 +4,7 @@ import com.expense.service.dto.ExpenseDto;
 import com.expense.service.entities.Expense;
 import com.expense.service.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
@@ -31,7 +33,8 @@ public class ExpenseService {
             expenseRepository.save(expense);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to create expense for userId: {}. Error: {}",
+                    expenseDto.getUserId(), e.getMessage(), e);
             return false;
         }
     }
