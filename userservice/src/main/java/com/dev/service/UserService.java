@@ -3,6 +3,8 @@ package com.dev.service;
 import com.dev.entities.UserInfo;
 import com.dev.entities.UserInfoDto;
 import com.dev.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,11 +12,13 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+
+    private final UserRepository userRepository;
 
     public UserInfoDto createOrUpdateUser(UserInfoDto userInfoDto) {
 
@@ -27,7 +31,7 @@ public class UserService {
             user.setPhoneNumber(Long.valueOf(userInfoDto.getPhoneNumber()));
             user.setProfilePic(userInfoDto.getProfilePic());
 
-            System.out.println(user);
+            log.info("Updating existing user: {}", user.getUserId());
             return userRepository.save(user);
         };
 

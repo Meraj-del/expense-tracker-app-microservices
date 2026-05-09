@@ -3,6 +3,7 @@ package com.dev.controller;
 import com.dev.entities.UserInfoDto;
 import com.dev.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
 
@@ -24,8 +26,8 @@ public class UserController {
             UserInfoDto user=userService.createOrUpdateUser(userInfoDto);
             return new ResponseEntity<>(user, HttpStatus.OK);
         }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            log.error("Error: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -36,8 +38,8 @@ public class UserController {
             UserInfoDto user=userService.getUser(userInfoDto);
             return new ResponseEntity<>(user, HttpStatus.OK);
         }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            log.error("Error: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

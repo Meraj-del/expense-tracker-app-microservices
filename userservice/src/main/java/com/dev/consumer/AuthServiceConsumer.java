@@ -7,6 +7,7 @@ import com.dev.repository.UserRepository;
 import com.dev.service.UserService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,17 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class AuthServiceConsumer {
 
     private final UserService userService;
 
     private final RedisLockService redisLockService;
-
-    @Autowired
-    AuthServiceConsumer(UserService userService, RedisLockService redisLockService) {
-        this.userService = userService;
-        this.redisLockService = redisLockService;
-    }
 
     @PostConstruct
     public void init() {
@@ -55,7 +51,8 @@ public class AuthServiceConsumer {
             userService.createOrUpdateUser(eventData);
             log.info("User saved to DB: {}", eventData);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to process user event for userId: {}",
+                    eventData.getUserId(), e);
         } finally {
             redisLockService.releaseLock(lockKey);
         }
