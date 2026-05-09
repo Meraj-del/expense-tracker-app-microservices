@@ -1,20 +1,22 @@
 package authSerivce.controller;
 
-import lombok.AllArgsConstructor;
 import authSerivce.entities.RefreshToken;
 import authSerivce.model.UserInfoDto;
 import authSerivce.response.JwtResponseDTO;
 import authSerivce.service.JwtService;
 import authSerivce.service.RefreshTokenService;
 import authSerivce.service.UserDetailsServiceImpl;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RestController
+@Slf4j
 public class AuthController {
 
 
@@ -47,7 +49,8 @@ public class AuthController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Signup failed for username: {}. Error: {}",
+                    userInfoDto.getUsername(), e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Exception in User Service: " + e.getMessage());
         }

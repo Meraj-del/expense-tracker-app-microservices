@@ -1,7 +1,6 @@
 package authSerivce.auth;
 
 import authSerivce.service.UserDetailsServiceImpl;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,14 +21,6 @@ public class SecurityConfig {
 
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsServiceImpl userDetailsService;
-
-    public SecurityConfig(
-            PasswordEncoder passwordEncoder,
-            UserDetailsServiceImpl userDetailsService
-    ) {
-        this.passwordEncoder = passwordEncoder;
-        this.userDetailsService = userDetailsService;
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(

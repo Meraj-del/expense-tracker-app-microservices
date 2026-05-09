@@ -1,12 +1,14 @@
 package authSerivce.controller;
 
-import lombok.AllArgsConstructor;
+
 import authSerivce.entities.RefreshToken;
 import authSerivce.request.AuthRequestDTO;
 import authSerivce.request.RefreshTokenRequestDTO;
 import authSerivce.response.JwtResponseDTO;
 import authSerivce.service.JwtService;
 import authSerivce.service.RefreshTokenService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,8 +16,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RestController
+@Slf4j
 public class TokenController {
 
 

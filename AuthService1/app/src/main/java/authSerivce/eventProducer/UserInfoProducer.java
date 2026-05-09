@@ -20,17 +20,27 @@ public class UserInfoProducer {
     private final KafkaTemplate<String, UserInfoDto> kafkaTemplate;
 
     @Value("${spring.kafka.topic.name}")
-    private String TOPIC_NAME;
+    private String topicName;
 
     @PostConstruct
     public void init() {
-        log.info("UserInfoProducer initialized. Publishing to topic: {}", TOPIC_NAME);
+        log.info("UserInfoProducer initialized. Publishing to topic: {}", topicName);
     }
 
     public void sendEventToKafka(UserInfoDto userInfoDto) {
         Message<UserInfoDto> message = MessageBuilder.withPayload(userInfoDto)
-                .setHeader(KafkaHeaders.TOPIC,TOPIC_NAME).build();
-        kafkaTemplate.send(message);
+                .setHeader(KafkaHeaders.TOPIC, topicName).build();
+
+        kafkaTemplate.send(message)
+                .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        log.error("Failed to publish event for userId: {}. Error: {}",
+                                userInfoDto.getUserId(), ex.getMessage());
+                    } else {
+                        log.info("Event published for userId: {} to topic: {}",
+                                userInfoDto.getUserId(), topicName);
+                    }
+                });
     }
 
 

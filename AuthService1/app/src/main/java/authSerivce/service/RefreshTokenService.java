@@ -17,10 +17,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class RefreshTokenService {
 
-    @Autowired
+
     private final RefreshTokenRepository refreshTokenRepository;
 
-    @Autowired
+
     private final UserRepository userRepository;
 
     @Transactional

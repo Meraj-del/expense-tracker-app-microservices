@@ -7,6 +7,7 @@ import authSerivce.eventProducer.UserInfoProducer;
 import authSerivce.model.UserInfoDto;
 import authSerivce.repository.UserRepository;
 import authSerivce.util.ValidationUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,18 +20,19 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.HashSet;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 @Transactional
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    @Autowired
+
     private final UserRepository userRepository;
 
-    @Autowired
+
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
+
     private final UserInfoProducer userInfoProducer;
 
 
@@ -82,7 +84,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .phoneNumber(dto.getPhoneNumber())
                 .build();
 
-        System.out.println("Sending Event: " + event);
+        log.info("Publishing user event to Kafka for userId: {}", newUser.getUserId());
         userInfoProducer.sendEventToKafka(event);
 
         return true;
