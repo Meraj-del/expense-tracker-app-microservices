@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -21,6 +22,7 @@ public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
 
+    @Transactional
     public boolean createExpense(ExpenseDto expenseDto) {
         try {
             setCurrency(expenseDto);
@@ -39,6 +41,7 @@ public class ExpenseService {
         }
     }
 
+    @Transactional
     public boolean updateExpense(ExpenseDto expenseDto) {
         Optional<Expense> expenseFoundOpt = expenseRepository
                 .findByUserIdAndExternalId(expenseDto.getUserId(), expenseDto.getExternalId());
@@ -53,10 +56,11 @@ public class ExpenseService {
         if (expenseDto.getAmount() != null) {
             expense.setAmount(expenseDto.getAmount());
         }
-        expenseRepository.save(expense);
+//        expenseRepository.save(expense);
         return true;
     }
 
+    @Transactional(readOnly = true)
     public List<ExpenseDto> getExpenseByDateRange(String userId, String from, String to) {
         try {
             Timestamp startDate = Timestamp.valueOf(from + " 00:00:00");
@@ -72,6 +76,7 @@ public class ExpenseService {
         }
     }
 
+    @Transactional
     public boolean deleteExpense(String userId, String externalId) {
         Optional<Expense> expenseOpt = expenseRepository
                 .findByUserIdAndExternalId(userId, externalId);
@@ -82,6 +87,8 @@ public class ExpenseService {
         return true;
     }
 
+
+    @Transactional(readOnly = true)
     public List<ExpenseDto> getExpense(String userId) {
         List<Expense> expensesList = expenseRepository.findByUserId(userId);
         return expensesList.stream()

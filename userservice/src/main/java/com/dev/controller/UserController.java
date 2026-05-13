@@ -7,10 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,14 +29,15 @@ public class UserController {
     }
 
     @GetMapping("/user/v1/getUser")
-    public ResponseEntity<UserInfoDto> getUser(UserInfoDto userInfoDto){
-        try
-        {
-            UserInfoDto user=userService.getUser(userInfoDto);
+    public ResponseEntity<UserInfoDto> getUser(@RequestParam("user_id") String userId) {
+        try {
+            UserInfoDto userInfoDto = new UserInfoDto();
+            userInfoDto.setUserId(userId);
+            UserInfoDto user = userService.getUser(userInfoDto);
             return new ResponseEntity<>(user, HttpStatus.OK);
-        }catch (Exception e){
-            log.error("Error: {}", e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            log.error("Error getting user: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }

@@ -8,7 +8,7 @@ class MessageService:
     def __init__(self):
         logger.info("Initializing MessageService")
         self.messageUtil = MessageUtil()
-        self.llmService = LLMService()
+        self.llmService = None
 
     def process_message(self, message):
         logger.info("Checking if bank SMS")

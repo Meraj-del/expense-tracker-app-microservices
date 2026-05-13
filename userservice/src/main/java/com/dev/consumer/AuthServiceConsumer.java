@@ -35,10 +35,9 @@ public class AuthServiceConsumer {
 
     @KafkaListener(topics = "${spring.kafka.topic.name}",
             groupId = "${spring.kafka.consumer.group-id}")
-    @Transactional //if Db fails->transaction roll back kafka offset won't commit , message will retry safeky
-    public void listner(UserInfoDto eventData){
+    @Transactional
+    public void listner(UserInfoDto eventData) {
 
-//TODO : Make it Transactional to handle idempotency and validate email, phone etc: can use Raddis  distributed lock by using user id
         String lockKey = "lock:user:" + eventData.getUserId();
 
         boolean locked = redisLockService.acquireLock(lockKey, 5000);
