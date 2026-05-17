@@ -24,21 +24,15 @@ public class ExpenseService {
 
     @Transactional
     public boolean createExpense(ExpenseDto expenseDto) {
-        try {
-            setCurrency(expenseDto);
-            Expense expense = new Expense();
-            expense.setUserId(expenseDto.getUserId());
-            expense.setAmount(expenseDto.getAmount());
-            expense.setMerchant(expenseDto.getMerchant());
-            expense.setCurrency(expenseDto.getCurrency());
-            expense.setCreatedAt(expenseDto.getCreatedAt());
-            expenseRepository.save(expense);
-            return true;
-        } catch (Exception e) {
-            log.error("Failed to create expense for userId: {}. Error: {}",
-                    expenseDto.getUserId(), e.getMessage(), e);
-            return false;
-        }
+        setCurrency(expenseDto);
+        Expense expense = new Expense();
+        expense.setUserId(expenseDto.getUserId());
+        expense.setAmount(expenseDto.getAmount());
+        expense.setMerchant(expenseDto.getMerchant());
+        expense.setCurrency(expenseDto.getCurrency());
+        expense.setCreatedAt(expenseDto.getCreatedAt());
+        expenseRepository.save(expense);
+        return true;
     }
 
     @Transactional
