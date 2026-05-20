@@ -20,6 +20,9 @@ services:
       - name: auth-ping
         paths:
           - /auth/v1/ping
+      - name: auth-admin
+        paths:
+          - /auth/v1/admin/users
         strip_path: false
 
   - name: user-service

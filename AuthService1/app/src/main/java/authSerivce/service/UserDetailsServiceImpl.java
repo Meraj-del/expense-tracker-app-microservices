@@ -1,5 +1,7 @@
 package authSerivce.service;
 
+import authSerivce.entities.UserRole;
+import authSerivce.repository.UserRoleRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import authSerivce.entities.UserInfo;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -34,6 +37,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 
     private final UserInfoProducer userInfoProducer;
+
+    private final UserRoleRepository userRoleRepository;
 
 
     @Override
@@ -71,7 +76,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         newUser.setUsername(dto.getUsername());
         newUser.setEmail(dto.getEmail());
         newUser.setPassword(passwordEncoder.encode(dto.getPassword()));
-        newUser.setRoles(new HashSet<>());
+
+        UserRole userRole = userRoleRepository.findByName("ROLE_USER")
+                        .orElseGet(()->{
+                            UserRole newUserRole = new UserRole();
+                            newUserRole.setName("ROLE_USER");
+                            return userRoleRepository.save(newUserRole);
+                        });
+        newUser.setRoles(new HashSet<>(Set.of(userRole)));
 
         userRepository.save(newUser);
 
