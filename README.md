@@ -217,13 +217,16 @@ curl -X POST http://localhost:8005/auth/v1/signup \
 
 ---
 
-## Performance & Reliability
+Performance & Reliability
 
-- **Throughput:** 50,000+ requests/minute (tested with JMeter)
-- **Latency:** Sub-100ms API response time
-- **Availability:** 99.9% uptime SLA (RDS Multi-AZ)
-- **Resilience:** Kafka consumer offset management, Redis idempotency, distributed locking
-- **Data Consistency:** Composite indexes on `(user_id, created_at)` for fast range queries
+- **Local Testing:** All 4 services verified in Docker Compose
+- **Latency:** Sub-100ms API response time (local testing)
+- **Kafka Processing:** Async event consumption with 0 blocking calls
+- **Scalability:** Designed for horizontal scaling (stateless services)
+- **Data Consistency:** Composite indexes on (user_id, created_at) for fast range queries
+- **Resilience:** Redis distributed locks, idempotent consumers, Kafka offset management
+
+Production Load Testing: Planned post-AWS deployment (June 15, 2026)
 
 ---
 
