@@ -240,30 +240,6 @@ Production Load Testing: Planned post-AWS deployment (June 15, 2026)
  **Data:** MySQL encryption at rest, HTTPS in production
  **Concurrency:** Redis distributed locks prevent race conditions
 
----
-
-## Available for Backend Consulting
-
-I build systems like this for SaaS founders scaling their backends.
-
-### Services
-- **Short-term projects** (2-4 weeks, $1.5K-4K)
-- **Retainer work** (ongoing support, $3-5K/month)
-- **Architecture consulting** (code review, optimization)
-
-### I Help With
-✓ Scaling from monolith to microservices
-✓ Event-driven architecture (Kafka, async processing)
-✓ AI/LLM integration into data pipelines
-✓ Kong API Gateway setup & JWT security
-✓ AWS deployment (EC2, RDS, ElastiCache, ALB)
-✓ Spring Boot optimization & best practices
-✓ Database performance tuning
-
-### Rates
-- **$50/hour** (flexible for retainers)
-- **$1,500-4,000** per 2-week project
-- **$3,000-5,000/month** for retainer work
 
 ### Contact
 - **Email:** [mdmeraj260261@gmail.com]
