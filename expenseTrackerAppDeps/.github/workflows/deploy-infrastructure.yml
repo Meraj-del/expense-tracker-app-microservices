@@ -1,4 +1,5 @@
 name: Deploy Infrastructure
+
 on:
   push:
     branches:
@@ -24,7 +25,7 @@ jobs:
       - name: Deploy Infrastructure Stack
         run: |
           aws cloudformation deploy \
-            --template-file cloudformation-template-initial-infra.yaml \
+            --template-file expenseTrackerAppDeps/.github/cloudformation-template-initial-infra.yml \
             --stack-name infrastructure-stack \
             --capabilities CAPABILITY_NAMED_IAM
 
@@ -46,5 +47,5 @@ jobs:
           else
             echo "Bucket $BUCKET_NAME already exists"
           fi
-          echo "Uploading Bucket $BUCKET_NAME"
+          echo "Uploading to Bucket $BUCKET_NAME"
           aws s3 cp ${INFRA_FILE_NAME} s3://${BUCKET_NAME}/infrastructure-outputs.json
