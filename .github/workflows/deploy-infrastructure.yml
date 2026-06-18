@@ -25,7 +25,7 @@ jobs:
       - name: Deploy Infrastructure Stack
         run: |
           aws cloudformation deploy \
-            --template-file expenseTrackerAppDeps/.github/cloudformation-template-initial-infra.yml \
+            --template-file .github/cloudformation-template-initial-infra.yml \
             --stack-name infrastructure-stack \
             --capabilities CAPABILITY_NAMED_IAM
 
