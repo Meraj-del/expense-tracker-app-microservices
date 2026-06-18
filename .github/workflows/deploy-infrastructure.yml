@@ -39,7 +39,7 @@ jobs:
 
       - name: Upload infrastructure outputs to S3
         env:
-          BUCKET_NAME: "expense001-meraj8960786-infra-85886264"
+          BUCKET_NAME: "expensedeploinfra-89209971141001786"
           INFRA_FILE_NAME: "infrastructure-outputs.json"
         run: |
           if ! aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
