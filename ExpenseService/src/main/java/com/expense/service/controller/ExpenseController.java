@@ -2,9 +2,7 @@ package com.expense.service.controller;
 
 import com.expense.service.dto.ExpenseDto;
 import com.expense.service.service.ExpenseService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,91 +14,261 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExpenseController {
 
-
     private final ExpenseService expenseService;
+
+
+    // =========================================================
+    // GET ALL EXPENSES FOR AUTHENTICATED USER
+    // =========================================================
 
     @GetMapping("/get")
     public ResponseEntity<?> getExpenses(
-            @RequestParam("user_id") String userId) {
+            @RequestHeader("X-User-Id") String userId) {
+
         try {
-            List<ExpenseDto> expenseDtoList = expenseService.getExpense(userId);
+
+            List<ExpenseDto> expenseDtoList =
+                    expenseService.getExpense(userId);
+
             if (expenseDtoList.isEmpty()) {
-                return new ResponseEntity<>("No expenses found for this user", HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(
+                        "No expenses found for this user",
+                        HttpStatus.NO_CONTENT
+                );
             }
-            return new ResponseEntity<>(expenseDtoList, HttpStatus.OK);
+
+            return new ResponseEntity<>(
+                    expenseDtoList,
+                    HttpStatus.OK
+            );
+
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+
+            return new ResponseEntity<>(
+                    e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
+
+
+    // =========================================================
+    // GET EXPENSES BY DATE RANGE
+    // =========================================================
 
     @GetMapping("/get/range")
     public ResponseEntity<?> getExpenseByDateRange(
-            @RequestParam("user_id") String userId,
+            @RequestHeader("X-User-Id") String userId,
             @RequestParam("from") String from,
             @RequestParam("to") String to) {
+
         try {
-            List<ExpenseDto> expenses = expenseService.getExpenseByDateRange(userId, from, to);
+
+            List<ExpenseDto> expenses =
+                    expenseService.getExpenseByDateRange(
+                            userId,
+                            from,
+                            to
+                    );
+
             if (expenses.isEmpty()) {
-                return new ResponseEntity<>("No expenses found in this date range", HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(
+                        "No expenses found in this date range",
+                        HttpStatus.NO_CONTENT
+                );
             }
-            return new ResponseEntity<>(expenses, HttpStatus.OK);
+
+            return new ResponseEntity<>(
+                    expenses,
+                    HttpStatus.OK
+            );
+
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+
+            return new ResponseEntity<>(
+                    e.getMessage(),
+                    HttpStatus.BAD_REQUEST
+            );
+
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+
+            return new ResponseEntity<>(
+                    e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
+
+
+    // =========================================================
+    // CREATE EXPENSE
+    // =========================================================
 
     @PostMapping("/create")
     public ResponseEntity<String> createExpense(
+            @RequestHeader("X-User-Id") String userId,
             @RequestBody ExpenseDto expenseDto) {
+
         try {
-            boolean created = expenseService.createExpense(expenseDto);
+
+            // Never trust user_id coming from request body.
+            // Use authenticated user ID injected by Kong.
+            expenseDto.setUserId(userId);
+
+            boolean created =
+                    expenseService.createExpense(expenseDto);
+
             if (created) {
-                return new ResponseEntity<>("Expense created successfully", HttpStatus.CREATED);
+
+                return new ResponseEntity<>(
+                        "Expense created successfully",
+                        HttpStatus.CREATED
+                );
             }
-            return new ResponseEntity<>("Expense creation failed", HttpStatus.BAD_REQUEST);
+
+            return new ResponseEntity<>(
+                    "Expense creation failed",
+                    HttpStatus.BAD_REQUEST
+            );
+
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+
+            return new ResponseEntity<>(
+                    e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
+
+
+    // =========================================================
+    // UPDATE EXPENSE
+    // =========================================================
 
     @PutMapping("/update")
     public ResponseEntity<String> updateExpense(
+            @RequestHeader("X-User-Id") String userId,
             @RequestBody ExpenseDto expenseDto) {
+
         try {
-            boolean updated = expenseService.updateExpense(expenseDto);
+
+            // Never trust user_id from client.
+            // Force the authenticated user's ID.
+            expenseDto.setUserId(userId);
+
+            boolean updated =
+                    expenseService.updateExpense(expenseDto);
+
             if (updated) {
-                return new ResponseEntity<>("Expense updated successfully", HttpStatus.OK);
+
+                return new ResponseEntity<>(
+                        "Expense updated successfully",
+                        HttpStatus.OK
+                );
             }
-            return new ResponseEntity<>("Expense not found", HttpStatus.NOT_FOUND);
+
+            return new ResponseEntity<>(
+                    "Expense not found",
+                    HttpStatus.NOT_FOUND
+            );
+
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+
+            return new ResponseEntity<>(
+                    e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
+
+
+    // =========================================================
+    // DELETE EXPENSE
+    // =========================================================
 
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteExpense(
-            @RequestParam("user_id") String userId,
+            @RequestHeader("X-User-Id") String userId,
             @RequestParam("external_id") String externalId) {
+
         try {
-            boolean deleted = expenseService.deleteExpense(userId, externalId);
+
+            // userId comes ONLY from authenticated request.
+            boolean deleted =
+                    expenseService.deleteExpense(
+                            userId,
+                            externalId
+                    );
+
             if (deleted) {
-                return new ResponseEntity<>("Expense deleted successfully", HttpStatus.OK);
+
+                return new ResponseEntity<>(
+                        "Expense deleted successfully",
+                        HttpStatus.OK
+                );
             }
-            return new ResponseEntity<>("Expense not found", HttpStatus.NOT_FOUND);
+
+            return new ResponseEntity<>(
+                    "Expense not found",
+                    HttpStatus.NOT_FOUND
+            );
+
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+
+            return new ResponseEntity<>(
+                    e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
 
+
+    // =========================================================
+    // ADD EXPENSE
+    // =========================================================
+
     @PostMapping("/addExpense")
-    public ResponseEntity<Boolean> addExpense(@RequestHeader(value = "X-User-Id") @NonNull String userId, @RequestHeader(value = "X-External-Id") @NonNull String externalId,ExpenseDto expenseDto) {
-        try{
+    public ResponseEntity<Boolean> addExpense(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestHeader("X-External-Id") String externalId,
+            @RequestBody ExpenseDto expenseDto) {
+
+        try {
+
+            // Identity comes from Kong.
             expenseDto.setUserId(userId);
-            return new ResponseEntity<>(expenseService.createExpense(expenseDto), HttpStatus.OK);
-        }catch (Exception e){
-            return new ResponseEntity<>(false,HttpStatus.BAD_REQUEST);
+
+            // External ID comes from trusted request header.
+            expenseDto.setExternalId(externalId);
+
+            boolean created =
+                    expenseService.createExpense(expenseDto);
+
+            return new ResponseEntity<>(
+                    created,
+                    HttpStatus.OK
+            );
+
+        } catch (Exception e) {
+
+            return new ResponseEntity<>(
+                    false,
+                    HttpStatus.BAD_REQUEST
+            );
         }
+    }
+
+
+    // =========================================================
+    // HEALTH CHECK
+    // =========================================================
+
+    @GetMapping("/health")
+    public ResponseEntity<Boolean> checkHealth() {
+
+        return new ResponseEntity<>(
+                true,
+                HttpStatus.OK
+        );
     }
 }

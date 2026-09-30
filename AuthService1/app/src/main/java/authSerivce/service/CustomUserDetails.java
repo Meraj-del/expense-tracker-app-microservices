@@ -18,6 +18,10 @@ public class CustomUserDetails implements UserDetails , Serializable {
 
     private final UserInfo user;
 
+    public String getUserId() {
+        return user.getUserId();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRoles().stream()

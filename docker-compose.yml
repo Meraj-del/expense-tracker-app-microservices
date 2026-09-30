@@ -6,23 +6,28 @@ services:
       - "6379:6379"
     networks:
       - backend-network
+
   mysql:
     image: mysql:8.3
     container_name: mysql-container
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: Meraj786
-      MYSQL_DATABASE: userservice
-      MYSQL_USER: test
-      MYSQL_PASSWORD: Meraj786
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
     networks:
       - backend-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   kafka:
-    image: apache/kafka:latest
+    image: apache/kafka:4.2.0
     container_name: kafka-kraft
     restart: always
     ports:
@@ -34,34 +39,63 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-kraft:9092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-kraft:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
       KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
       - kafka_data:/var/lib/kafka/data
     networks:
       - backend-network
+
   auth-service:
     build: ./auth-jar
     image: authservice
     container_name: auth-service
     ports:
       - "9898:9898"
+    environment:
+      MYSQL_HOST: mysql-container
+      MYSQL_PORT: 3306
+      AUTH_DB_NAME: authservice
+      MYSQL_USERNAME: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      KAFKA_HOST: kafka-kraft
+      KAFKA_PORT: 9092
     depends_on:
-      - kafka
-      - mysql
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     networks:
       - backend-network
+
   user-service:
     build: ./user-jar
     image: userservice
     container_name: user-service
     ports:
       - "9810:9810"
+    environment:
+      MYSQL_HOST: mysql-container
+      MYSQL_PORT: 3306
+      USER_DB_NAME: userservice
+      MYSQL_USERNAME: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      KAFKA_HOST: kafka-kraft
+      KAFKA_PORT: 9092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
-      - kafka
-      - mysql
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_started
     networks:
       - backend-network
+
   expense-service:
     build: ./expense-jar
     image: expenseservice
@@ -69,16 +103,21 @@ services:
     ports:
       - "9820:9820"
     environment:
-      KAFKA_HOST: kafka
-      KAFKA_PORT: 9092
       MYSQL_HOST: mysql-container
       MYSQL_PORT: 3306
-      MYSQL_DB: expenseservice
+      EXPENSE_DB_NAME: expenseservice
+      MYSQL_USERNAME: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      KAFKA_HOST: kafka-kraft
+      KAFKA_PORT: 9092
     depends_on:
-      - kafka
-      - mysql
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     networks:
       - backend-network
+
   ds-service:
     build: ./jar
     image: ds-service
@@ -86,9 +125,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      KAFKA_HOST: kafka
+      KAFKA_HOST: kafka-kraft
       KAFKA_PORT: 9092
-      MISTRAL_API_KEY: qXv7bCJSynWPSbVtjTgQ9Ip6DY4jBX6x
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY}
     depends_on:
       - kafka
       - mysql
@@ -96,9 +135,11 @@ services:
       - user-service
     networks:
       - backend-network
+
 volumes:
   mysql_data:
   kafka_data:
+
 networks:
   backend-network:
     driver: bridge

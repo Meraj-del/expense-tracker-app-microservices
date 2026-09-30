@@ -18,8 +18,8 @@ public class UserInfoDeserializer implements Deserializer<UserInfoDto> {
         try {
             return mapper.readValue(data, UserInfoDto.class);
         } catch (Exception e) {
-            System.err.println("Failed to deserialize UserInfoDto: " + e.getMessage());
-            return null;
+            e.printStackTrace();
+            throw  new RuntimeException(e);
         }
     }
 

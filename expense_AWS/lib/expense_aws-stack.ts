@@ -1,84 +1,86 @@
-import { CfnEIP, CfnInternetGateway, CfnNatGateway, CfnRoute, CfnVPC, CfnVPCGatewayAttachment, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
-import * as cdk from 'aws-cdk-lib/core';
+import * as cdk from 'aws-cdk-lib';
+import { CfnEIP, CfnInternetGateway, CfnNatGateway, CfnRoute, CfnVPCGatewayAttachment, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class ExpenseAwsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const vpc  = new Vpc(this, "myVpc",{
+    // Create VPC
+    const vpc = new Vpc(this, "myVPC", {
       vpcName: "expenseTracker",
       cidr: "10.0.0.0/16",
       maxAzs: 2,
-      natGateways: 2,
-      createInternetGateway: false,
+      natGateways: 0,
+      createInternetGateway: false, 
       subnetConfiguration: [
         {
           cidrMask: 24,
-          name: "public-subnet",
-          subnetType: SubnetType.PUBLIC
+          name: 'public-subnet',
+          subnetType: SubnetType.PUBLIC,
         },
         {
           cidrMask: 24,
-          name: "private-subnet",
-          subnetType: SubnetType.PRIVATE_WITH_EGRESS
-        },
+          name: 'private-subnet',
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+        }
       ]
     });
 
-    const internalGateway = new CfnInternetGateway(this , "InternetGateway");
-    new CfnVPCGatewayAttachment(this,"MyUniqueVPCGatewayAttachment",{
+
+    const internetGateway = new CfnInternetGateway(this, 'InternetGateway');
+    new CfnVPCGatewayAttachment(this, 'MyUniqueVPCGatewayAttachment', {
       vpcId: vpc.vpcId,
-      internetGatewayId: internalGateway.ref
+      internetGatewayId: internetGateway.ref,
     });
 
-    const natGatewayone= new CfnNatGateway(this , "NatGatewayOne",{
+    // NAT Gateways
+    const natGatewayOne = new CfnNatGateway(this, 'NatGatewayOne', {
       subnetId: vpc.publicSubnets[0].subnetId,
-      allocationId: new CfnEIP(this,'EIPForNatGatewayOne').attrAllocationId
-    })
+      allocationId: new CfnEIP(this, 'EIPForNatGatewayOne').attrAllocationId,
+    });
 
-    const natGatewaytwo= new CfnNatGateway(this , "NatGatewayTwo",{
+    const natGatewayTwo = new CfnNatGateway(this, 'NatGatewayTwo', {
       subnetId: vpc.publicSubnets[1].subnetId,
-      allocationId: new CfnEIP(this,'EIPForNatGatewayTwo').attrAllocationId
-    })
+      allocationId: new CfnEIP(this, 'EIPForNatGatewayTwo').attrAllocationId,
+    });
 
-    vpc.privateSubnets.forEach((subnet,index)=>{
-      new CfnRoute(this,`PrivateRouteToNatGateway~${index}`,{
+    // Route for private subnets to NAT Gateways
+    vpc.privateSubnets.forEach((subnet, index) => {
+      new CfnRoute(this, `PrivateRouteToNatGateway-${index}`, {
         routeTableId: subnet.routeTable.routeTableId,
         destinationCidrBlock: '0.0.0.0/0',
-        natGatewayId: index===0?natGatewayone.ref : natGatewaytwo.ref
-      })
-    })
+        natGatewayId: index === 0 ? natGatewayOne.ref : natGatewayTwo.ref,
+      });
+    });
 
-    vpc.publicSubnets.forEach((subnet,index)=>{
-      new CfnRoute(this,`PublicRouteToInternalGateway~${index}`,{
+    // Route for public subnets to Internet Gateway
+    vpc.publicSubnets.forEach((subnet, index) => {
+      new CfnRoute(this, `PublicRouteToInternetGateway-${index}`, {
         routeTableId: subnet.routeTable.routeTableId,
         destinationCidrBlock: '0.0.0.0/0',
-        gatewayId: internalGateway.ref
-      })
-    })
+        gatewayId: internetGateway.ref
+      });
+    });
 
+    new cdk.aws_ssm.StringParameter(this, 'VpcIdExport', {
+      parameterName: 'VpcId',
+      stringValue: vpc.vpcId
+    })
     
-    new cdk.CfnOutput(this,'VPCIdOutput',{
-      value: vpc.vpcId,
-      exportName: 'VpcId'
+    vpc.publicSubnets.forEach((subnet, index)=> {
+      new cdk.aws_ssm.StringParameter(this, `PublicSubnetExport-${index}`, {
+        parameterName: `PublicSubnet-${index}`,
+        stringValue: subnet.subnetId
+      })
     })
 
-    vpc.publicSubnets.forEach((subnet,index)=>{
-      new cdk.CfnOutput(this,`PublicSubnetOutput~${index}`,{
-        value: subnet.subnetId,
-        exportName: `PublicSubnet~${index}`
-      });
-    })
-
-    vpc.privateSubnets.forEach((subnet,index)=>{
-      new cdk.CfnOutput(this,`PrivateSubnetOutput~${index}`,{
-        value: subnet.subnetId,
-        exportName: `PrivateSubnet~${index}`
-      });
-    })
-
+    vpc.privateSubnets.forEach((subnet, index)=> {
+      new cdk.aws_ssm.StringParameter(this, `PrivateSubnetExport-${index}`, {
+        parameterName: `PrivateSubnet-${index}`,
+        stringValue: subnet.subnetId
+      })
+    }) 
 
   }
 }

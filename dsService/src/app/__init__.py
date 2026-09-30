@@ -60,6 +60,10 @@ def handle_message():
     except Exception as e:
         logger.error(f"ERROR: {str(e)}")
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/health',methods=['GET'])
+def handle_get():
+    return 'Hello World'
 
 
 @app.route('/', methods=['GET'])

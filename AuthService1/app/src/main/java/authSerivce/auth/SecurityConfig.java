@@ -31,7 +31,6 @@ public class SecurityConfig {
         return http
                 // Disable CSRF (JWT is stateless)
                 .csrf(csrf -> csrf.disable())
-
                 // Stateless session
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -43,7 +42,8 @@ public class SecurityConfig {
                                 "/auth/v1/login",
                                 "/auth/v1/signup",
                                 "/auth/v1/refreshToken",
-                                "/auth/v1/ping"
+                                "/auth/v1/ping",
+                                "/health"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
