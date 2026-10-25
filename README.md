@@ -13,8 +13,9 @@ An expense tracking backend built as independent services that communicate throu
 - **Reproducible deployment.** The entire stack runs from two Compose files and is deployed to AWS EC2 from a dedicated deployment repository.
 
 ## Architecture
-![Architecture diagram](images/architecture.png)
-
+<p align="center">
+  <img src="images/architecture.png" alt="Architecture diagram" width="700">
+</p>
 
 **Core flow: SMS to expense**
 
