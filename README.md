@@ -14,7 +14,7 @@ An expense tracking backend built as independent services that communicate throu
 
 ## Architecture
 <p align="center">
-  <img src="images/architecture.png" alt="Architecture diagram" width="700">
+  <img src="images/architecture.png" alt="Architecture diagram" width="300">
 </p>
 
 **Core flow: SMS to expense**
